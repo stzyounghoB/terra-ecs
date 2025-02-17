@@ -1,0 +1,50 @@
+name: "Terraform CI/CD"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    env:
+      TF_ENV: "dev"  # 기본적으로 dev 환경에서 실행
+
+    steps:
+      # 1️⃣ Repository 체크아웃
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ AWS 인증 설정
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      # 3️⃣ Terraform 설정
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
+
+      # 4️⃣ Terraform Init (환경별 적용)
+      - name: Terraform Init
+        run: terraform init -backend-config="environments/${TF_ENV}/backend.tf"
+
+      # 5️⃣ Terraform Plan (PR에서 실행)
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -var-file="environments/${TF_ENV}/terraform.tfvars"
+
+      # 6️⃣ Terraform Apply (main 브랜치 push 시 실행)
+      - name: Terraform Apply
+        if: github.event_name == 'push'
+        run: terraform apply -auto-approve -var-file="environments/${TF_ENV}/terraform.tfvars"
+
