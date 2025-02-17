@@ -17,6 +17,9 @@ resource "aws_ecs_task_definition" "example" {
   network_mode          = "awsvpc"
   requires_compatibilities = ["FARGATE"]
 
+  cpu                    = "256"  # 추가
+  memory                 = "512"  # 추가
+
   container_definitions = <<DEFINITION
   [
     {
