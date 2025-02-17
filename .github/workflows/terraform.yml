@@ -1,55 +1,35 @@
-name: "Terraform CI/CD"
+name: Deploy to AWS ECS
 
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - main  # 특정 브랜치로 푸시 시 실행
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
 
-    env:
-      TF_ENV: "dev"  # 기본적으로 dev 환경에서 실행
-
     steps:
-      # 1️⃣ Repository 체크아웃
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      # 2️⃣ AWS 인증 설정
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-west-2
 
-      # 3️⃣ Terraform 설정
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.5.0
+          terraform_version: 1.4.5
 
-      # 4️⃣ Terraform Init (환경별 적용)
       - name: Terraform Init
-        run: |
-          cd terraform
-          terraform init -backend-config="environments/${TF_ENV}/backend.tf"
+        run: terraform init
 
-      # 5️⃣ Terraform Plan (PR에서 실행)
       - name: Terraform Plan
-        if: github.event_name == 'pull_request'
-        run: |
-          cd terraform
-          terraform plan -var-file="environments/${TF_ENV}/terraform.tfvars"
+        run: terraform plan
 
-      # 6️⃣ Terraform Apply (main 브랜치 push 시 실행)
       - name: Terraform Apply
-        if: github.event_name == 'push'
-        run: |
-          cd terraform
-          terraform apply -auto-approve -var-file="environments/${TF_ENV}/terraform.tfvars"
+        run: terraform apply -auto-approve
