@@ -1,35 +1,33 @@
-name: Deploy to AWS ECS
-
-on:
-  push:
-    branches:
-      - main  # 특정 브랜치로 푸시 시 실행
-
 jobs:
   terraform:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Check if ECR repository exists
+        run: |
+          aws ecr describe-repositories --repository-names my-repository-ecs || echo "ECR repository does not exist"
+        continue-on-error: true
 
-      - name: Set up AWS CLI
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2  # aws_region -> aws-region으로 수정
+      - name: Import ECR repository if it exists
+        run: |
+          if [ $? -eq 0 ]; then
+            terraform import aws_ecr_repository.example my-repository-ecs;
+          fi
+        continue-on-error: true
 
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.4.5
+      - name: Check if IAM Role exists
+        run: |
+          aws iam get-role --role-name ecsTaskExecutionRole || echo "IAM role does not exist"
+        continue-on-error: true
 
-      - name: Terraform Init
-        run: terraform init
+      - name: Import IAM role if it exists
+        run: |
+          if [ $? -eq 0 ]; then
+            terraform import aws_iam_role.ecs_task_execution_role ecsTaskExecutionRole;
+          fi
+        continue-on-error: true
 
-      - name: Terraform Plan
+      - name: Run terraform plan
         run: terraform plan
 
-      - name: Terraform Apply
+      - name: Run terraform apply
         run: terraform apply -auto-approve
