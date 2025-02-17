@@ -8,42 +8,28 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ap-northeast-2
+
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.4.5
 
-      - name: Navigate to Terraform directory
-        run: tree
+      - name: Terraform Init
+        run: terraform init
 
-      - name: Check if ECR repository exists
-        run: |
-          aws ecr describe-repositories --repository-names my-repository-ecs || echo "ECR repository does not exist"
-        continue-on-error: true
-
-      - name: Import ECR repository if it exists
-        run: |
-          if [ $? -eq 0 ]; then
-            terraform import aws_ecr_repository.example my-repository-ecs;
-          fi
-        continue-on-error: true
-
-      - name: Check if IAM Role exists
-        run: |
-          aws iam get-role --role-name ecsTaskExecutionRole || echo "IAM role does not exist"
-        continue-on-error: true
-
-      - name: Import IAM role if it exists
-        run: |
-          if [ $? -eq 0 ]; then
-            terraform import aws_iam_role.ecs_task_execution_role ecsTaskExecutionRole;
-          fi
-        continue-on-error: true
-
-      - name: Run terraform plan
+      - name: Terraform Plan
         run: terraform plan
 
-      - name: Run terraform apply
+      - name: Terraform Apply
         run: terraform apply -auto-approve
-
