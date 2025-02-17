@@ -34,11 +34,9 @@ jobs:
         with:
           terraform_version: 1.5.0
 
-      # 4️⃣ Terraform Init (환경별 적용)
       - name: Terraform Init
         run: terraform init -backend-config="environments/${TF_ENV}/backend.tf"
 
-      # 5️⃣ Terraform Plan (PR에서 실행)
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
         run: terraform plan -var-file="environments/${TF_ENV}/terraform.tfvars"
