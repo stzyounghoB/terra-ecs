@@ -37,19 +37,16 @@ jobs:
       # 4️⃣ Terraform Init (S3 백엔드 설정으로 초기화)
       - name: Terraform Init
         run: |
-          cd terraform
           terraform init  # backend.tf에 있는 S3 설정을 읽어들여서 S3 상태 관리 시작
 
       # 5️⃣ Terraform Plan (PR에서 실행)
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
         run: |
-          cd terraform
           terraform plan -var-file="environments/${TF_ENV}/terraform.tfvars"
 
       # 6️⃣ Terraform Apply (main 브랜치 push 시 실행)
       - name: Terraform Apply
         if: github.event_name == 'push'
         run: |
-          cd terraform
           terraform apply -auto-approve -var-file="environments/${TF_ENV}/terraform.tfvars"
