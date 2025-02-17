@@ -9,7 +9,7 @@ resource "aws_ecs_cluster" "example" {
 }
 
 resource "aws_ecr_repository" "example" {
-  name = "my-repository"
+  name = "my-repository-ecs"
 }
 
 resource "aws_ecs_task_definition" "example" {
