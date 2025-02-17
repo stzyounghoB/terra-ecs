@@ -5,16 +5,16 @@ provider "aws" {
 }
 
 resource "aws_ecs_cluster" "example" {
-  name = "my-cluster"
+  name = "yh-cluster"
 }
 
 resource "aws_ecr_repository" "example" {
-  name = "my-repository-ecs"
+  name = "yh-repository-ecs"
 }
 
 # IAM 역할 생성
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "ecsTaskExecutionRole"
+  name = "yh-ecsTaskExecutionRole"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -38,7 +38,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
 
 # ECS Task Definition
 resource "aws_ecs_task_definition" "example" {
-  family                = "my-task-definition"
+  family                = "yh-task-definition"
   network_mode          = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   
@@ -51,7 +51,7 @@ resource "aws_ecs_task_definition" "example" {
   container_definitions = <<DEFINITION
   [
     {
-      "name": "my-container",
+      "name": "yh-container",
       "image": "${aws_ecr_repository.example.repository_url}:latest",
       "memory": 512,
       "cpu": 256,
@@ -69,14 +69,14 @@ resource "aws_ecs_task_definition" "example" {
 }
 
 resource "aws_ecs_service" "example" {
-  name            = "my-service"
+  name            = "yh-test-ecs"
   cluster         = aws_ecs_cluster.example.id
   task_definition = aws_ecs_task_definition.example.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = ["subnet-xxxxxx"]
-    security_groups = ["sg-xxxxxx"]
+    subnets          = ["subnet-005946c78ffd939e9"]
+    security_groups = ["sg-05a8779df838e6451"]
   }
 }
