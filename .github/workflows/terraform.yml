@@ -13,8 +13,6 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.4.5
-      - name: Navigate to Terraform directory
-        run: cd ./
 
       - name: Navigate to Terraform directory
         run: tree
