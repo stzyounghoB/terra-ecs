@@ -9,6 +9,10 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
     steps:
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.4.5
       - name: Check if ECR repository exists
         run: |
           aws ecr describe-repositories --repository-names my-repository-ecs || echo "ECR repository does not exist"
