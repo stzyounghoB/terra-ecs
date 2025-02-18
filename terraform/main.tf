@@ -84,7 +84,7 @@ resource "aws_lb" "yh_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.ecs_sg.id]
-  subnets            = ["subnet-005946c78ffd939e9"]
+  subnets            = ["subnet-005946c78ffd939e9", "subnet-0fefd21b4221bbf5e"]
 }
 
 resource "aws_lb_target_group" "yh_target_group" {
