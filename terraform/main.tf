@@ -123,3 +123,28 @@ resource "aws_lb_listener" "yh_listener" {
     }
   }
 }
+
+resource "aws_db_instance" "yh_rds" {
+  identifier        = "yh-rds-instance"
+  engine            = "mysql"  # 또는 다른 DB 엔진을 선택
+  engine_version    = "8.0"    # 버전 설정
+  instance_class    = "db.t3.micro"  # DB 인스턴스 클래스
+  allocated_storage = 20      # 디스크 크기
+  username          = "admin" # DB 사용자
+  password          = "your-password"  # 비밀번호
+  db_name           = "myappdb"  # 생성할 데이터베이스 이름
+  publicly_accessible = false  # RDS를 퍼블릭으로 액세스할지 여부
+
+  # VPC와 서브넷 설정
+  vpc_security_group_ids = ["sg-06321d9e26e03d2a4"]  # RDS와 연결된 보안 그룹
+  db_subnet_group_name   = aws_db_subnet_group.yh_subnet_group.name
+
+  # 백업 및 유지보수 설정
+  backup_retention_period = 7  # 백업 기간
+  multi_az               = false
+}
+
+resource "aws_db_subnet_group" "yh_subnet_group" {
+  name       = "yh-db-subnet-group"
+  subnet_ids = ["subnet-005946c78ffd939e9", "subnet-0fefd21b4221bbf5e"]  # RDS에 사용할 서브넷 ID
+}
