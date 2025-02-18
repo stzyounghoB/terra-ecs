@@ -26,7 +26,7 @@ resource "aws_ecs_task_definition" "yh-task" {
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
 }
 
-resource "aws_ecs_service" yh_service" {
+resource "aws_ecs_service" "yh_service" {
   name            = "yh-service"
   cluster         = aws_ecs_cluster.yh_cluster.id
   task_definition = aws_ecs_task_definition.yh_task.arn
