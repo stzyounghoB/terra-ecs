@@ -64,7 +64,7 @@ resource "aws_ecs_task_definition" "yh_task" {
         },
         {
           name  = "DB_NAME"
-          value = aws_db_instance.yh_rds.db_name  # 데이터베이스 이름
+          value = aws_db_instance.yh_rds.db_name 
         },
         {
           name  = "DB_USER"
