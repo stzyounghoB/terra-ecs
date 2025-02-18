@@ -55,7 +55,7 @@ resource "aws_ecs_service" "yh_service" {
 
   network_configuration {
     subnets         = ["subnet-005946c78ffd939e9"]
-    security_groups = ["sg-05a8779df838e6451"]
+    security_groups = ["sg-06321d9e26e03d2a4"]
     assign_public_ip = true
   }
 }
