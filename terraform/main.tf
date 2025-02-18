@@ -59,3 +59,32 @@ resource "aws_ecs_service" "yh_service" {
     assign_public_ip = true
   }
 }
+
+resource "aws_lb" "yh_lb" {
+  name               = "yh-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.ecs_sg.id]
+  subnets            = ["subnet-005946c78ffd939e9"]
+}
+
+resource "aws_lb_target_group" "yh_target_group" {
+  name     = "yh-target-group"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = "vpc-071cde0c7a3a4a818"
+}
+
+resource "aws_lb_listener" "yh_listener" {
+  load_balancer_arn = aws_lb.yh_lb.arn
+  port              = "80"
+  protocol          = "HTTP"
+  default_action {
+    type             = "fixed-response"
+    fixed_response {
+      status_code = 200
+      content_type = "text/plain"
+      message_body = "NGINX Service is running!"
+    }
+  }
+}
