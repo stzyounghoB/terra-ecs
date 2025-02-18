@@ -17,6 +17,17 @@ resource "aws_iam_role" "ecs_execution_role" {
   })
 }
 
+# ECR 리포지토리 생성
+resource "aws_ecr_repository" "yh_ecs_repository" {
+  name = "yh-ecs-repository"
+}
+
+# ECR 리포지토리에 대한 IAM 권한 부여 (EC2가 ECR에 접근할 수 있도록)
+resource "aws_iam_role_policy_attachment" "ecs_execution_role_ecr_policy" {
+  role       = aws_iam_role.ecs_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
 resource "aws_iam_role_policy" "ecs_s3_policy" {
   name = "ecsS3Policy"
   role = aws_iam_role.ecs_execution_role.id
