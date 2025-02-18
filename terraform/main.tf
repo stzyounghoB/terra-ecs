@@ -43,14 +43,14 @@ resource "aws_ecs_task_definition" "yh_task" {
   container_definitions    = jsonencode([
     {
       name      = "yh-container"
-      image     = "nginx:latest"
+      image     = "123456789012.dkr.ecr.us-west-2.amazonaws.com/yh-spring-boot-repository:latest"
       memory    = 512
       cpu       = 256
       essential = true
       portMappings = [
         {
-          containerPort = 80
-          hostPort      = 80
+          containerPort = 8080    # Spring Boot 앱 포트
+          hostPort      = 8080    # 호스트 포트
         }
       ]
       environment = [
@@ -60,7 +60,7 @@ resource "aws_ecs_task_definition" "yh_task" {
         },
         {
           name  = "DB_PORT"
-          value = "3306"  # MySQL 기본 포트
+          value = "3306"
         },
         {
           name  = "DB_NAME"
@@ -68,11 +68,11 @@ resource "aws_ecs_task_definition" "yh_task" {
         },
         {
           name  = "DB_USER"
-          value = aws_db_instance.yh_rds.username  # DB 사용자
+          value = aws_db_instance.yh_rds.username  
         },
         {
           name  = "DB_PASSWORD"
-          value = aws_db_instance.yh_rds.password  # DB 비밀번호
+          value = aws_db_instance.yh_rds.password  
         }
       ]
     }
@@ -128,7 +128,7 @@ resource "aws_lb" "yh_lb" {
 
 resource "aws_lb_target_group" "yh_target_group" {
   name     = "yh-target-group"
-  port     = 80
+  port     = 8080  # Spring Boot 앱 포트
   protocol = "HTTP"
   vpc_id   = "vpc-071cde0c7a3a4a818"
 }
@@ -138,12 +138,8 @@ resource "aws_lb_listener" "yh_listener" {
   port              = "80"
   protocol          = "HTTP"
   default_action {
-    type             = "fixed-response"
-    fixed_response {
-      status_code = 200
-      content_type = "text/plain"
-      message_body = "NGINX Service is running!"
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.yh_target_group.arn  # ALB Target Group
   }
 }
 
