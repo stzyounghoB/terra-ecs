@@ -38,7 +38,7 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-resource "aws_ecs_task_definition" "yh_task" {  # 하이픈 제거
+resource "aws_ecs_task_definition" "yh_task" {
   family                   = "yh-task"
   container_definitions    = jsonencode([
     {
@@ -53,6 +53,28 @@ resource "aws_ecs_task_definition" "yh_task" {  # 하이픈 제거
           hostPort      = 80
         }
       ]
+      environment = [
+        {
+          name  = "DB_HOST"
+          value = aws_db_instance.yh_rds.endpoint  # RDS 엔드포인트
+        },
+        {
+          name  = "DB_PORT"
+          value = "3306"  # MySQL 기본 포트
+        },
+        {
+          name  = "DB_NAME"
+          value = aws_db_instance.yh_rds.db_name  # 데이터베이스 이름
+        },
+        {
+          name  = "DB_USER"
+          value = aws_db_instance.yh_rds.username  # DB 사용자
+        },
+        {
+          name  = "DB_PASSWORD"
+          value = aws_db_instance.yh_rds.password  # DB 비밀번호
+        }
+      ]
     }
   ])
   requires_compatibilities = ["FARGATE"]
@@ -61,6 +83,7 @@ resource "aws_ecs_task_definition" "yh_task" {  # 하이픈 제거
   cpu                      = "256"
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
 }
+
 
 resource "aws_ecs_service" "yh_service" {
   name            = "yh-service"
