@@ -60,6 +60,25 @@ resource "aws_ecs_service" "yh_service" {
   }
 }
 
+resource "aws_security_group" "ecs_sg" {
+  name_prefix = "ecs-security-group"
+  vpc_id      = "vpc-071cde0c7a3a4a818"  # ECS와 동일한 VPC ID
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # 모든 IP에서 80 포트 접근 허용
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_lb" "yh_lb" {
   name               = "yh-alb"
   internal           = false
